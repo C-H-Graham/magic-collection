@@ -156,7 +156,15 @@ function toggleSortOrder() {
 }
 
 function viewDetails(card: any) {
-  selectedCard.value = card;
+  if (selectedCard.value && selectedCard.value.id === card.id) {
+    selectedCard.value = null;
+    // Wait for next tick to ensure dialog closes before reopening
+    nextTick(() => {
+      selectedCard.value = card;
+    });
+  } else {
+    selectedCard.value = card;
+  }
 }
 
 // --- Wishlist logic ---
