@@ -3,7 +3,12 @@
     <v-card v-if="card">
       <v-card-title>{{ card.name }}</v-card-title>
       <v-card-text>
-        <v-img :src="card.image_uris?.normal || ''" height="450px" />
+        <v-img
+          :src="card.image_uris?.normal || ''"
+          height="450px"
+          style="cursor:pointer;"
+          @click="openScryfall"
+        />
         <div><strong>Set:</strong> {{ card.set_name }}</div>
         <div><strong>Type:</strong> {{ card.type_line }}</div>
         <div><strong>Oracle Text:</strong> {{ card.oracle_text }}</div>
@@ -11,6 +16,11 @@
         <div><strong>Quantity:</strong> {{ card.jamesData.inventoryInfo[0]?.quantity ?? 'N/A' }}</div>
       </v-card-text>
       <v-card-actions>
+        <v-btn color="primary" @click="$emit('add-to-wishlist', card)">
+          <v-icon left>{{ card.inWishlist ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+          {{ card.inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}
+        </v-btn>
+        <v-spacer />
         <v-btn color="primary" @click="$emit('close')">Close</v-btn>
       </v-card-actions>
     </v-card>
@@ -22,4 +32,10 @@ import { ref, watch } from 'vue';
 const props = defineProps<{ card: any }>();
 const dialog = ref(true);
 watch(() => props.card, () => { dialog.value = true; });
+
+function openScryfall() {
+  if (props.card?.scryfall_uri) {
+    window.open(props.card.scryfall_uri, '_blank');
+  }
+}
 </script>

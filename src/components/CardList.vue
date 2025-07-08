@@ -13,19 +13,40 @@
         :expand-on-hover="true"
       >
         <v-list>
+          <!-- Wishlist Group -->
+          <v-list-group value="Wishlist" dense>
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props" title="Wishlist" prepend-icon="mdi-heart"></v-list-item>
+            </template>
+            <v-list-item v-if="wishlist.length === 0" disabled>
+              <v-list-item-title>No cards in wishlist</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              v-for="card in wishlist"
+              :key="card.id"
+              @click="viewDetails(card)"
+            >
+              <v-list-item-title>{{ card.name }}</v-list-item-title>
+            </v-list-item>
+          </v-list-group>
+
+          <!-- Sets Group -->
           <v-list-group value="Sets" dense v-model:opened="open">
             <template v-slot:activator="{ props}">
-              <v-list-item v-bind="props" title="Sets" prepend-icon="mdi-account-circle"></v-list-item>
+              <v-list-item v-bind="props" title="Sets" prepend-icon="mdi-set-none"></v-list-item>
             </template>
       
-            <v-list-item :active="!selectedSet" @click="selectSet('')" title="All Sets"></v-list-item>
+            <v-list-item :active="selectedSets.length === 0" @click="clearSetSelection" title="All Sets"></v-list-item>
             <v-list-item
               v-for="set in sets"
               :key="set"
-              :active="selectedSet === set"
-              @click="selectSet(set)"
+              :active="selectedSets.includes(set)"
+              @click="toggleSetSelection(set)"
             >
               <v-list-item-title>{{ set }}</v-list-item-title>
+              <template #append>
+                <v-icon v-if="selectedSets.includes(set)">mdi-check</v-icon>
+              </template>
             </v-list-item>
           </v-list-group>
         </v-list>
@@ -67,7 +88,19 @@
         <v-row v-if="loading" justify="center" class="my-4">
           <v-progress-circular indeterminate color="primary" />
         </v-row>
-        <CardDetail v-if="selectedCard" :card="selectedCard" @close="selectedCard = null" />
+        <CardDetail v-if="selectedCard" :card="selectedCard" @close="selectedCard = null" @add-to-wishlist="handleWishlist" />
+        <v-snackbar v-model="snackbar.show" :timeout="3500" color="success">
+          {{ snackbar.message }}
+          <template #actions>
+            <v-btn color="white" text @click="snackbar.show = false">Close</v-btn>
+          </template>
+        </v-snackbar>
+        <v-snackbar v-model="snackbarRemove.show" :timeout="3500" color="error">
+          {{ snackbarRemove.message }}
+          <template #actions>
+            <v-btn color="white" text @click="snackbarRemove.show = false">Close</v-btn>
+          </template>
+        </v-snackbar>
       </v-col>
     </v-row>
   </v-container>
@@ -100,13 +133,22 @@ var open = "Sets"
 
 // --- Navigation Drawer State ---
 const drawer = ref(true);
-const selectedSet = ref('');
+const selectedSets = ref<string[]>([]);
 const sets = ref<string[]>([]);
 
-function selectSet(set: string) {
-  selectedSet.value = set;
+function toggleSetSelection(set: string) {
+  const idx = selectedSets.value.indexOf(set);
+  if (idx === -1) {
+    selectedSets.value.push(set);
+  } else {
+    selectedSets.value.splice(idx, 1);
+  }
   loadMoreCards(true);
-  // Do not close or minimize the drawer; rail mode is always visible
+}
+
+function clearSetSelection() {
+  selectedSets.value = [];
+  loadMoreCards(true);
 }
 
 function toggleSortOrder() {
@@ -119,6 +161,8 @@ function viewDetails(card: any) {
 
 // --- Wishlist logic ---
 const wishlist = ref<any[]>([]);
+const snackbar = ref({ show: false, message: '' });
+const snackbarRemove = ref({ show: false, message: '' });
 
 function handleWishlist(card: any) {
   if (!card.id) return;
@@ -126,17 +170,23 @@ function handleWishlist(card: any) {
   if (index === -1) {
     wishlist.value.push(card);
     card.inWishlist = true;
+    // Calculate total
+    const total = wishlist.value.reduce((sum, c) => sum + (parseFloat(c.prices?.usd) || 0), 0);
+    snackbar.value.message = `${card.name} added to wishlist. Estimated total: $${total.toFixed(2)}`;
+    snackbar.value.show = true;
   } else {
     wishlist.value.splice(index, 1);
     card.inWishlist = false;
+    snackbarRemove.value.message = `${card.name} removed from wishlist.`;
+    snackbarRemove.value.show = true;
   }
 }
 
 function getFilteredCards() {
   const s = search.value.toLowerCase();
   let filtered = cards.value;
-  if (selectedSet.value) {
-    filtered = filtered.filter(card => card.set_name === selectedSet.value);
+  if (selectedSets.value.length > 0) {
+    filtered = filtered.filter(card => selectedSets.value.includes(card.set_name));
   }
   if (s) {
     filtered = filtered.filter(card => card.name?.toLowerCase().includes(s));
@@ -198,7 +248,7 @@ onMounted(async () => {
 });
 
 import { watch } from 'vue';
-watch([search, sortBy, sortOrder, selectedSet], () => {
+watch([search, sortBy, sortOrder, selectedSets], () => {
   loadMoreCards(true);
 });
 </script>
