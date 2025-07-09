@@ -110,6 +110,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
+import { useWishlistStore } from '../stores/wishlist';
 import CardItem from './CardItem.vue';
 import CardDetail from './CardDetail.vue';
 
@@ -168,23 +169,20 @@ function viewDetails(card: any) {
 }
 
 // --- Wishlist logic ---
-const wishlist = ref<any[]>([]);
+
+const wishlistStore = useWishlistStore();
+const wishlist = wishlistStore.wishlist;
 const snackbar = ref({ show: false, message: '' });
 const snackbarRemove = ref({ show: false, message: '' });
 
 function handleWishlist(card: any) {
   if (!card.id) return;
-  const index = wishlist.value.findIndex((c) => c.id === card.id);
-  if (index === -1) {
-    wishlist.value.push(card);
-    card.inWishlist = true;
-    // Calculate total
-    const total = wishlist.value.reduce((sum, c) => sum + (parseFloat(c.prices?.usd) || 0), 0);
-    snackbar.value.message = `${card.name} added to wishlist. Estimated total: $${total.toFixed(2)}`;
+  const inList = wishlist.find((c) => c.id === card.id);
+  wishlistStore.toggle(card);
+  if (!inList) {
+    snackbar.value.message = `${card.name} added to wishlist. Estimated total: $${wishlistStore.total.toFixed(2)}`;
     snackbar.value.show = true;
   } else {
-    wishlist.value.splice(index, 1);
-    card.inWishlist = false;
     snackbarRemove.value.message = `${card.name} removed from wishlist.`;
     snackbarRemove.value.show = true;
   }

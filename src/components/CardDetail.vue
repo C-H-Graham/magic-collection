@@ -1,18 +1,18 @@
 <template>
   <v-dialog v-model="dialog" max-width="600px">
     <v-card v-if="card">
-      <v-card-title>{{ card.name }}</v-card-title>
-      <v-card-text>
+      <v-card-title style="font-size: 1.2rem; padding-bottom: 4px;">{{ card.name }}</v-card-title>
+      <v-card-text style="padding-top: 8px; padding-bottom: 8px;">
         <v-img
           :src="card.image_uris?.normal || ''"
-          height="450px"
-          style="cursor:pointer;"
+          height="320px"
+          style="cursor:pointer; margin-bottom: 8px; border-radius: 14px;"
           @click="openScryfall"
         />
-        <div><strong>Set:</strong> {{ card.set_name }}</div>
-        <div><strong>Type:</strong> {{ card.type_line }}</div>
-        <div><strong>Oracle Text:</strong> {{ card.oracle_text }}</div>
-        <div><strong>Price:</strong> ${{ card.prices?.usd || 'N/A' }}</div>
+        <div style="margin-bottom: 2px;"><strong>Set:</strong> {{ card.set_name }}</div>
+        <div style="margin-bottom: 2px;"><strong>Type:</strong> {{ card.type_line }}</div>
+        <div style="margin-bottom: 2px;"><strong>Oracle Text:</strong> {{ card.oracle_text }}</div>
+        <div style="margin-bottom: 2px;"><strong>Price:</strong> ${{ card.prices?.usd || 'N/A' }}</div>
         <div><strong>Quantity:</strong> {{ card.jamesData.inventoryInfo[0]?.quantity ?? 'N/A' }}</div>
       </v-card-text>
       <v-card-actions>
