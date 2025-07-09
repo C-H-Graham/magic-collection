@@ -52,30 +52,32 @@
         </v-list>
       </v-navigation-drawer>
       <v-col>
-        <v-toolbar flat color="white">
-          <v-text-field
-            v-model="search"
-            append-icon="mdi-magnify"
-            label="Search card names"
-            single-line
-            hide-details
-            clearable
-            class="mx-4"
-            style="max-width: 400px;"
-          />
-          <v-select
-            v-model="sortBy"
-            :items="sortOptions"
-            label="Sort by"
-            class="mx-4"
-            style="max-width: 200px;"
-            hide-details
-            dense
-          />
-          <v-btn icon @click="toggleSortOrder" :title="sortOrder === 'asc' ? 'Ascending' : 'Descending'">
-            <v-icon>{{ sortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down' }}</v-icon>
-          </v-btn>
-        </v-toolbar>
+        <v-app-bar flat color="white" app style="z-index: 10;">
+          <div style="display: flex; width: 100%; justify-content: center; align-items: center;">
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search card names"
+              single-line
+              hide-details
+              clearable
+              class="mx-4"
+              style="max-width: 400px;"
+            />
+            <v-select
+              v-model="sortBy"
+              :items="sortOptions"
+              label="Sort by"
+              class="mx-4"
+              style="max-width: 200px;"
+              hide-details
+              dense
+            />
+            <v-btn icon @click="toggleSortOrder" :title="sortOrder === 'asc' ? 'Ascending' : 'Descending'">
+              <v-icon>{{ sortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down' }}</v-icon>
+            </v-btn>
+          </div>
+        </v-app-bar>
         <v-row style="max-height: 80vh; overflow-y: auto;" @scroll.passive="onScroll" ref="scrollAreaRef">
           <CardItem
             v-for="card in visibleCards"

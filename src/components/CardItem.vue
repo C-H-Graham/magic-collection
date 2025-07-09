@@ -10,7 +10,7 @@
       <div style="padding: 8px 16px 0 16px;">
         <div style="font-size: 1.1rem; font-weight: 500; line-height: 1.2;">{{ card.name }}</div>
         <div style="font-size: 0.95rem; color: #666; line-height: 1.1;">{{ card.set_name }}</div>
-        <div style="font-size: 0.95rem; color: #666;">Price: ${{ card.prices?.usd || 'N/A' }}</div>
+        <div style="font-size: 0.95rem; color: #666;">Est. Price: ${{ card.prices?.usd || 'N/A' }}</div>
       </div>
       <v-card-actions style="padding: 8px 8px 8px 8px; justify-content: center;">
         <v-btn-group variant="elevated" density="compact" style="width: auto; min-width: 0; max-width: 220px;">
