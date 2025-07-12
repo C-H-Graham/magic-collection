@@ -107,11 +107,11 @@
             >
               <v-text-field v-model.trim="search"
                 dense 
-                filled 
                 rounded 
                 clearable 
                 placeholder="Search"
                 prepend-inner-icon="mdi-magnify" 
+                variant="solo"
                 class="pt-4 shrink"
                 @focus="searchBoxClosed = false" @blur="searchBoxClosed = true"
               ></v-text-field>
