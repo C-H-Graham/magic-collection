@@ -5,31 +5,6 @@
       <span class="mr-2">Wishlist: <strong>{{ wishlistCount }}</strong> card<span v-if="wishlistCount !== 1">s</span></span>
       <v-icon color="amber" size="20" class="mr-1">mdi-cash</v-icon>
       <span class="mr-3">Estimated Total: <strong>${{ wishlistTotal.toFixed(2) }}</strong></span>
-      <v-btn
-        v-if="wishlistCount > 0"
-        color="primary"
-        size="small"
-        variant="tonal"
-        :href="tcgMassEntryUrl"
-        target="_blank"
-        class="ml-2"
-        style="text-transform: none; font-size: 0.95rem;"
-      >
-        <v-icon left size="18">mdi-open-in-new</v-icon>
-        Wishlisted cards on TCGPlayer
-      </v-btn>
-      <v-btn
-        v-if="wishlistCount > 0"
-        color="error"
-        size="small"
-        variant="tonal"
-        class="ml-2"
-        style="text-transform: none; font-size: 0.95rem;"
-        @click="wishlistStore.clear()"
-      >
-        <v-icon left size="18">mdi-delete</v-icon>
-        Clear Wishlist
-      </v-btn>
     </div>
   </v-footer>
 </template>
