@@ -17,13 +17,18 @@
           <!-- Wishlist Group -->
           <v-list-group value="Wishlist" dense>
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" title="Wishlist" prepend-icon="mdi-heart"></v-list-item>
+              <v-list-item v-bind="props" title="Wishlist">
+                <template #prepend>
+                  <v-icon color="pink">mdi-heart</v-icon>
+                </template>
+              </v-list-item>
             </template>
                       <!-- Wishlist Actions -->
           <v-list-item
             :disabled="wishlist.length === 0"
             @click="openTCGMassEntry"
             style="margin-left: -30px;"
+           
           >
             <template #prepend>
               <v-icon style="margin-right: -25px;">mdi-open-in-new</v-icon>
