@@ -98,19 +98,24 @@
         </v-list>
       </v-navigation-drawer>
       <v-col>
-        <v-app-bar flat color="white" app style="z-index: 10;">
+        <v-app-bar flat dark app style="z-index: 10;">
           <div style="display: flex; width: 100%; justify-content: center; align-items: center;">
             
-            <v-text-field v-model.trim="search"
-             dense 
-             filled 
-             rounded 
-             clearable 
-             placeholder="Search"
-              prepend-inner-icon="mdi-magnify" 
-              class="pt-6 shrink expanding-search" 
-              :class="{ closed: searchBoxClosed && !searchText }" 
-              @focus="searchBoxClosed = false" @blur="searchBoxClosed = true"></v-text-field>
+            <div
+              class="search-bar-wrapper"
+              :class="{ closed: searchBoxClosed && !search }"
+            >
+              <v-text-field v-model.trim="search"
+                dense 
+                filled 
+                rounded 
+                clearable 
+                placeholder="Search"
+                prepend-inner-icon="mdi-magnify" 
+                class="pt-4 shrink"
+                @focus="searchBoxClosed = false" @blur="searchBoxClosed = true"
+              ></v-text-field>
+            </div>
             <v-select
               v-model="sortBy"
               :items="sortOptions"
@@ -154,12 +159,17 @@
     </v-row>
   </v-container>
 </template>
-<style lang="sass" scoped>
-  .v-input.expanding-search
-    transition: max-width 0.5s
-    .v-input__slot
-    &.closed
-      max-width: 50px
+<style lang="css">
+    .search-bar-wrapper {
+      transition: max-width 0.5s cubic-bezier(.4,0,.2,1), width 0.5s cubic-bezier(.4,0,.2,1);
+      max-width: 400px;
+      width: 100%;
+      display: flex;
+    }
+    .search-bar-wrapper.closed {
+      max-width: 50px;
+      width: 50px;
+    }
 </style>
 
 
