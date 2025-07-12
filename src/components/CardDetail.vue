@@ -20,6 +20,16 @@
           <v-icon left>{{ card.inWishlist ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
           {{ card.inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}
         </v-btn>
+        <template v-if="card.related_uris">
+          <template v-for="(url, key) in card.related_uris" :key="key">
+            <template v-if="String(key) !== 'tcgplayer_infinite_articles' && String(key) !== 'tcgplayer_infinite_decks' && String(key) !== 'tcg_player_infinite_decks'">
+              <v-btn color="secondary" size="small" style="margin-left: 4px;" @click="openRelated(url)">
+                <v-icon left size="small">mdi-open-in-new</v-icon>
+                {{ formatRelatedLabel(String(key)) }}
+              </v-btn>
+            </template>
+          </template>
+        </template>
         <v-spacer />
         <v-btn color="primary" @click="$emit('close')">Close</v-btn>
       </v-card-actions>
@@ -37,5 +47,14 @@ function openScryfall() {
   if (props.card?.scryfall_uri) {
     window.open(props.card.scryfall_uri, '_blank');
   }
+}
+
+function openRelated(url: string) {
+  window.open(url, '_blank');
+}
+
+function formatRelatedLabel(key: string) {
+  // Format keys like 'gatherer', 'edhrec', etc. to readable labels
+  return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 </script>

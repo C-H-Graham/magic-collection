@@ -28,5 +28,9 @@ export const useWishlistStore = defineStore('wishlist', {
         this.add(card);
       }
     },
+    clear() {
+      this.wishlist.forEach(card => { card.inWishlist = false; });
+      this.wishlist = [];
+    },
   },
 });

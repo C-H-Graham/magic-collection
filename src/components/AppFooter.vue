@@ -18,6 +18,18 @@
         <v-icon left size="18">mdi-open-in-new</v-icon>
         Wishlisted cards on TCGPlayer
       </v-btn>
+      <v-btn
+        v-if="wishlistCount > 0"
+        color="error"
+        size="small"
+        variant="tonal"
+        class="ml-2"
+        style="text-transform: none; font-size: 0.95rem;"
+        @click="wishlistStore.clear()"
+      >
+        <v-icon left size="18">mdi-delete</v-icon>
+        Clear Wishlist
+      </v-btn>
     </div>
   </v-footer>
 </template>

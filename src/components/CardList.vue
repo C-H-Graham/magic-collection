@@ -134,7 +134,16 @@ import { ref, onMounted, nextTick } from 'vue';
 import { useWishlistStore } from '../stores/wishlist';
 import CardItem from './CardItem.vue';
 import CardDetail from './CardDetail.vue';
-
+// Simple cookie helpers
+function setCookie(name: string, value: string, days = 365) {
+  const d = new Date();
+  d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
+}
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : null;
+}
 
 
 const cards = ref([]);
@@ -217,10 +226,41 @@ function viewDetails(card: any) {
 
 // --- Wishlist logic ---
 
+
 const wishlistStore = useWishlistStore();
 const wishlist = wishlistStore.wishlist;
 const snackbar = ref({ show: false, message: '' });
 const snackbarRemove = ref({ show: false, message: '' });
+
+// Persist wishlist to cookie whenever it changes
+watch(wishlist, (newVal) => {
+  // Only store id and name for simplicity
+  const minimal = newVal.map(card => ({ id: card.id, name: card.name }));
+  setCookie('wishlist', encodeURIComponent(JSON.stringify(minimal)));
+}, { deep: true });
+
+// On page load, restore wishlist from cookie
+onMounted(async () => {
+  // Wait for cards to be loaded before restoring wishlist
+  if (cards.value.length === 0) {
+    const response = await fetch('/src/assets/scryfall_data_merged.json');
+    const loaded = await response.json();
+    sets.value = Array.from(new Set(loaded.map((c: any) => c.set_name))).sort();
+    cards.value = loaded;
+    loadMoreCards(true);
+  }
+  const cookie = getCookie('wishlist');
+  if (cookie) {
+    try {
+      const arr = JSON.parse(decodeURIComponent(cookie));
+      arr.forEach((c: any) => {
+        // Find card in loaded cards and add to wishlist
+        const found = cards.value.find((card: any) => card.id === c.id);
+        if (found) wishlistStore.add(found);
+      });
+    } catch {}
+  }
+});
 
 function handleWishlist(card: any) {
   if (!card.id) return;

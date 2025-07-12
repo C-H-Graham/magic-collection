@@ -16,7 +16,7 @@
         <v-btn-group variant="elevated" density="compact" style="width: auto; min-width: 0; max-width: 220px;">
           <v-btn color="surface" size="x-small" style="min-width: 0; padding: 0 8px; color: #bdbdbd;" @click="$emit('view-details', card)">Details</v-btn>
           <v-btn color="surface" size="x-small" style="min-width: 0; padding: 0 8px; color: #bdbdbd;" @click="$emit('add-to-wishlist', card)">
-            <v-icon left size="x-small" style="color: #bdbdbd;">{{ card.inWishlist ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+            <v-icon left size="x-small" style="color: #bdbdbd;">{{ isWishlisted ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
             Wishlist
           </v-btn>
           <v-btn color="surface" size="x-small" style="min-width: 0; padding: 0 8px; color: #bdbdbd;" :href="card.scryfall_uri" target="_blank">
@@ -30,7 +30,11 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ card: any }>();
+import { computed } from 'vue';
+import { useWishlistStore } from '../stores/wishlist';
+const props = defineProps<{ card: any }>();
+const wishlistStore = useWishlistStore();
+const isWishlisted = computed(() => wishlistStore.wishlist.some((c: any) => c.id === props.card.id));
 </script>
 
 <style scoped>
