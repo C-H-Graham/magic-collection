@@ -100,16 +100,17 @@
       <v-col>
         <v-app-bar flat color="white" app style="z-index: 10;">
           <div style="display: flex; width: 100%; justify-content: center; align-items: center;">
-            <v-text-field
-              v-model="search"
-              append-icon="mdi-magnify"
-              label="Search card names"
-              single-line
-              hide-details
-              clearable
-              class="mx-4"
-              style="max-width: 400px;"
-            />
+            
+            <v-text-field v-model.trim="search"
+             dense 
+             filled 
+             rounded 
+             clearable 
+             placeholder="Search"
+              prepend-inner-icon="mdi-magnify" 
+              class="pt-6 shrink expanding-search" 
+              :class="{ closed: searchBoxClosed && !searchText }" 
+              @focus="searchBoxClosed = false" @blur="searchBoxClosed = true"></v-text-field>
             <v-select
               v-model="sortBy"
               :items="sortOptions"
@@ -153,6 +154,13 @@
     </v-row>
   </v-container>
 </template>
+<style lang="sass" scoped>
+  .v-input.expanding-search
+    transition: max-width 0.5s
+    .v-input__slot
+    &.closed
+      max-width: 50px
+</style>
 
 
 
@@ -178,6 +186,7 @@ const visibleCards = ref<any[]>([]);
 const selectedCard = ref(null);
 const loading = ref(false);
 const batchSize = 50;
+const searchBoxClosed = ref(true);
 let currentIndex = 0;
 const scrollAreaRef = ref<HTMLElement | null>(null);
 const search = ref('');
