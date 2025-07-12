@@ -13,11 +13,33 @@
         :expand-on-hover="true"
       >
         <v-list>
+
           <!-- Wishlist Group -->
           <v-list-group value="Wishlist" dense>
             <template v-slot:activator="{ props }">
               <v-list-item v-bind="props" title="Wishlist" prepend-icon="mdi-heart"></v-list-item>
             </template>
+                      <!-- Wishlist Actions -->
+          <v-list-item
+            :disabled="wishlist.length === 0"
+            @click="openTCGMassEntry"
+            style="margin-left: -30px;"
+          >
+            <template #prepend>
+              <v-icon style="margin-right: -25px;">mdi-open-in-new</v-icon>
+            </template>
+            <v-list-item-title style="margin-left: 0;">Buy on TCGPlayer</v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            :disabled="wishlist.length === 0"
+            @click="wishlistStore.clear()"
+            style="margin-left: -30px;"
+          >
+            <template #prepend>
+              <v-icon style="margin-right: -25px;">mdi-delete</v-icon>
+            </template>
+            <v-list-item-title style="margin-left: 0;">Clear</v-list-item-title>
+          </v-list-item>
             <v-list-item v-if="wishlist.length === 0" disabled>
               <v-list-item-title>No cards in wishlist</v-list-item-title>
             </v-list-item>
@@ -226,11 +248,30 @@ function viewDetails(card: any) {
 
 // --- Wishlist logic ---
 
-
 const wishlistStore = useWishlistStore();
-const wishlist = wishlistStore.wishlist;
+import { watch as vueWatch } from 'vue';
+const wishlist = ref<any[]>([]);
+vueWatch(() => wishlistStore.wishlist, (val: any[]) => {
+  wishlist.value = val;
+}, { immediate: true });
 const snackbar = ref({ show: false, message: '' });
 const snackbarRemove = ref({ show: false, message: '' });
+
+function encodeCardName(name: string) {
+  // Encode the card name for URL, but do NOT replace spaces with +
+  return encodeURIComponent(name)
+    .replace(/%2C/g, ',')
+    .replace(/%27/g, "'");
+}
+
+function openTCGMassEntry() {
+  if (!wishlist.value.length) return;
+  const query = wishlist.value
+    .map(card => `1+${encodeCardName(card.name)}`)
+    .join('%7c%7c');
+  const url = `https://www.tcgplayer.com/massentry?c=${query}`;
+  window.open(url, '_blank');
+}
 
 // Persist wishlist to cookie whenever it changes
 watch(wishlist, (newVal) => {
@@ -264,7 +305,7 @@ onMounted(async () => {
 
 function handleWishlist(card: any) {
   if (!card.id) return;
-  const inList = wishlist.find((c) => c.id === card.id);
+  const inList = wishlist.value.find((c) => c.id === card.id);
   wishlistStore.toggle(card);
   if (!inList) {
     snackbar.value.message = `${card.name} added to wishlist. Estimated total: $${wishlistStore.total.toFixed(2)}`;

@@ -18,7 +18,7 @@
       <v-card-actions>
         <v-btn color="primary" @click="$emit('add-to-wishlist', card)">
           <v-icon left>{{ card.inWishlist ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
-          {{ card.inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}
+          {{ card.inWishlist ? 'Remove from Wishlist' : 'Wishlist' }}
         </v-btn>
         <template v-if="card.related_uris">
           <template v-for="(url, key) in card.related_uris" :key="key">
