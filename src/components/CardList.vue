@@ -30,6 +30,25 @@
             </v-list-item>
           </v-list-group>
 
+          <!-- Color Identity Group -->
+          <v-list-group value="Colors" dense>
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props" title="Colors" prepend-icon="mdi-palette"></v-list-item>
+            </template>
+            <v-list-item :active="selectedColors.length === 0" @click="clearColorSelection" title="All Colors"></v-list-item>
+            <v-list-item
+              v-for="color in colorOptions"
+              :key="color.value"
+              :active="selectedColors.includes(color.value)"
+              @click="toggleColorSelection(color.value)"
+            >
+              <v-list-item-title>{{ color.label }}</v-list-item-title>
+              <template #append>
+                <v-icon v-if="selectedColors.includes(color.value)">mdi-check</v-icon>
+              </template>
+            </v-list-item>
+          </v-list-group>
+
           <!-- Sets Group -->
           <v-list-group value="Sets" dense v-model:opened="open">
             <template v-slot:activator="{ props}">
@@ -130,14 +149,40 @@ const sortOptions = [
   { title: 'Name', value: 'name' },
   { title: 'Purchase Price', value: 'price' },
 ];
-const sortBy = ref('name');
-const sortOrder = ref<'asc' | 'desc'>('asc');
+const sortBy = ref('price');
+const sortOrder = ref<'asc' | 'desc'>('desc');
 var open = "Sets"
 
 // --- Navigation Drawer State ---
 const drawer = ref(true);
 const selectedSets = ref<string[]>([]);
 const sets = ref<string[]>([]);
+
+// --- Color Identity Filter State ---
+const colorOptions = [
+  { value: 'W', label: 'White' },
+  { value: 'U', label: 'Blue' },
+  { value: 'B', label: 'Black' },
+  { value: 'R', label: 'Red' },
+  { value: 'G', label: 'Green' },
+  { value: 'C', label: 'Colorless' },
+];
+const selectedColors = ref<string[]>([]);
+
+function toggleColorSelection(color: string) {
+  const idx = selectedColors.value.indexOf(color);
+  if (idx === -1) {
+    selectedColors.value.push(color);
+  } else {
+    selectedColors.value.splice(idx, 1);
+  }
+  loadMoreCards(true);
+}
+
+function clearColorSelection() {
+  selectedColors.value = [];
+  loadMoreCards(true);
+}
 
 function toggleSetSelection(set: string) {
   const idx = selectedSets.value.indexOf(set);
@@ -196,8 +241,19 @@ function getFilteredCards() {
   if (selectedSets.value.length > 0) {
     filtered = filtered.filter(card => selectedSets.value.includes(card.set_name));
   }
+  if (selectedColors.value.length > 0) {
+    filtered = filtered.filter(card => {
+      if (!Array.isArray(card.color_identity)) return false;
+      // Card must have ALL selected colors in its color_identity
+      return selectedColors.value.every(sel => card.color_identity.includes(sel));
+    });
+  }
   if (s) {
-    filtered = filtered.filter(card => card.name?.toLowerCase().includes(s));
+    filtered = filtered.filter(card =>
+      card.name?.toLowerCase().includes(s) ||
+      card.type_line?.toLowerCase().includes(s) ||
+      (Array.isArray(card.color_identity) && card.color_identity.join('').toLowerCase().includes(s))
+    );
   }
   // Sorting
   filtered = [...filtered].sort((a, b) => {
