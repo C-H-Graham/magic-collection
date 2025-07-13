@@ -14,6 +14,10 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/magic-collection/',
+  build: {
+    outDir: 'docs',
+  },
   plugins: [
     VueRouter({
       dts: 'src/typed-router.d.ts',
