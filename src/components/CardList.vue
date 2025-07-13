@@ -45,6 +45,16 @@
             </template>
             <v-list-item-title style="margin-left: 0;">Clear</v-list-item-title>
           </v-list-item>
+          <v-list-item
+            :disabled="wishlist.length === 0"
+            @click="copyWishlistToClipboard"
+            style="margin-left: -30px;"
+          >
+            <template #prepend>
+              <v-icon style="margin-right: -25px;">mdi-content-copy</v-icon>
+            </template>
+            <v-list-item-title style="margin-left: 0;">Copy Wishlist to Clipboard</v-list-item-title>
+          </v-list-item>
             <v-list-item v-if="wishlist.length === 0" disabled>
               <v-list-item-title>No cards in wishlist</v-list-item-title>
             </v-list-item>
@@ -175,6 +185,18 @@
 
 
 <script setup lang="ts">
+function copyWishlistToClipboard() {
+  if (!wishlist.value.length) return;
+  // Format: Card Name (Set Name)\n per line
+  const lines = wishlist.value.map(card => `${card.name} (${card.set_name || ''})`).join('\n');
+  navigator.clipboard.writeText(lines).then(() => {
+    snackbar.value.message = 'Wishlist copied to clipboard!';
+    snackbar.value.show = true;
+  }, () => {
+    snackbarRemove.value.message = 'Failed to copy wishlist.';
+    snackbarRemove.value.show = true;
+  });
+}
 import { ref, onMounted, nextTick } from 'vue';
 import { useWishlistStore } from '../stores/wishlist';
 import CardItem from './CardItem.vue';
