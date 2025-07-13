@@ -176,6 +176,25 @@
     </v-card>
   </v-dialog>
 
+  <!-- Disclaimer Dialog -->
+  <v-dialog v-model="showDisclaimer" persistent max-width="500">
+    <v-card>
+      <v-card-title class="headline">Disclaimer</v-card-title>
+      <v-card-text>
+        <div style="font-size: 1rem;">
+          <p>
+            <strong>Notice:</strong> This app is not affiliated with Wizards of the Coast. The data for these cards, especially prices, is not up to date and was taken from Scryfall on <b>7/7/2025</b>.
+            Quantities and prices may have changed since then. Please reach out for more accurate information.
+          </p>
+        </div>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" @click="acknowledgeDisclaimer">Acknowledge</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
         </v-app-bar>
         <v-row style="max-height: 80vh; overflow-y: auto;" @scroll.passive="onScroll" ref="scrollAreaRef">
           <CardItem
@@ -251,6 +270,7 @@ function getCookie(name: string): string | null {
 
 // Search Syntax Help Dialog State
 const showSearchHelp = ref(false);
+const showDisclaimer = ref(false);
 const cards = ref([]);
 const visibleCards = ref<any[]>([]);
 const selectedCard = ref(null);
@@ -366,6 +386,10 @@ watch(wishlist, (newVal) => {
 
 // On page load, restore wishlist from cookie
 onMounted(async () => {
+  // Disclaimer logic
+  if (getCookie('disclaimer_acknowledged') !== 'true') {
+    showDisclaimer.value = true;
+  }
   // Wait for cards to be loaded before restoring wishlist
   if (cards.value.length === 0) {
     const response = await fetch('/src/assets/scryfall_data_merged.json');
@@ -386,6 +410,11 @@ onMounted(async () => {
     } catch {}
   }
 });
+
+function acknowledgeDisclaimer() {
+  setCookie('disclaimer_acknowledged', 'true', 365);
+  showDisclaimer.value = false;
+}
 
 function handleWishlist(card: any) {
   if (!card.id) return;
