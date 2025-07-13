@@ -108,7 +108,7 @@
       </v-navigation-drawer>
       <v-col>
         <v-app-bar flat dark app style="z-index: 10;">
-          <div style="display: flex; width: 100%; justify-content: center; align-items: center;">
+          <div style="display: flex; width: 100%; justify-content: flex-end; align-items: center;">
             <div class="search-bar-wrapper" :class="{ closed: searchBoxClosed && !search }">
               <v-text-field v-model.trim="search"
                 dense 
