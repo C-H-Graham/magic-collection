@@ -364,7 +364,8 @@ onMounted(async () => {
   }
   // Wait for cards to be loaded before restoring wishlist
   if (cards.value.length === 0) {
-    const response = await fetch('/scryfall_data_merged.json');
+    const base = import.meta.env.BASE_URL || '/';
+    const response = await fetch(`${base}scryfall_data_merged.json`);
     const loaded = await response.json();
     // Explicitly type loaded as any[]
     const loadedCards = loaded as any[];
