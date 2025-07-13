@@ -1,4 +1,3 @@
-
 <template>
   <v-container fluid>
     <v-row>
@@ -363,7 +362,7 @@ function handleWishlist(card: any) {
 }
 
 function getFilteredCards() {
-  const s = search.value.toLowerCase();
+  const s = search.value.trim();
   let filtered = cards.value;
   if (selectedSets.value.length > 0) {
     filtered = filtered.filter(card => selectedSets.value.includes(card.set_name));
@@ -375,11 +374,58 @@ function getFilteredCards() {
       return selectedColors.value.every(sel => card.color_identity.includes(sel));
     });
   }
-  if (s) {
+
+  // Scryfall-like syntax parsing
+  // Supported: c: (color), n: (name), o: (oracle text), t: (type)
+  // Negation: -c:U, -n:foo, etc.
+  // Example: c:U n:dragon -o:flying
+  // If no tag, fallback to fuzzy search
+  const syntaxRegex = /(-)?(c|n|o|t):([^\s]+)/gi;
+  let matches = [];
+  let rest = s;
+  let m;
+  while ((m = syntaxRegex.exec(s)) !== null) {
+    matches.push({ neg: !!m[1], tag: m[2], value: m[3].toLowerCase() });
+    rest = rest.replace(m[0], '').trim();
+  }
+
+  if (matches.length > 0) {
+    matches.forEach(({ neg, tag, value }) => {
+      if (tag === 'c') {
+        // AND logic: c:UW means must have both U and W in color_identity
+        const colors = value.split('');
+        filtered = filtered.filter(card => {
+          if (!Array.isArray(card.color_identity)) return false;
+          const cardColors = card.color_identity.map((x: string) => x.toLowerCase());
+          const hasAll = colors.every(c => cardColors.includes(c));
+          return neg ? !hasAll : hasAll;
+        });
+      } else if (tag === 'n') {
+        filtered = filtered.filter(card => {
+          const hasName = card.name?.toLowerCase().includes(value);
+          return neg ? !hasName : hasName;
+        });
+      } else if (tag === 'o') {
+        filtered = filtered.filter(card => {
+          const hasOracle = card.oracle_text?.toLowerCase().includes(value);
+          return neg ? !hasOracle : hasOracle;
+        });
+      } else if (tag === 't') {
+        filtered = filtered.filter(card => {
+          const hasType = card.type_line?.toLowerCase().includes(value);
+          return neg ? !hasType : hasType;
+        });
+      }
+    });
+  }
+  // Fallback fuzzy search for any remaining text
+  if (rest) {
+    const restLower = rest.toLowerCase();
     filtered = filtered.filter(card =>
-      card.name?.toLowerCase().includes(s) ||
-      card.type_line?.toLowerCase().includes(s) ||
-      (Array.isArray(card.color_identity) && card.color_identity.join('').toLowerCase().includes(s))
+      card.name?.toLowerCase().includes(restLower) ||
+      card.type_line?.toLowerCase().includes(restLower) ||
+      card.oracle_text?.toLowerCase().includes(restLower) ||
+      (Array.isArray(card.color_identity) && card.color_identity.join('').toLowerCase().includes(restLower))
     );
   }
   // Sorting
