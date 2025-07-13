@@ -12,7 +12,6 @@ declare module 'vue' {
     CardDetail: typeof import('./components/CardDetail.vue')['default']
     CardItem: typeof import('./components/CardItem.vue')['default']
     CardList: typeof import('./components/CardList.vue')['default']
-    HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
