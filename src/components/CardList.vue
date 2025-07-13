@@ -109,11 +109,7 @@
       <v-col>
         <v-app-bar flat dark app style="z-index: 10;">
           <div style="display: flex; width: 100%; justify-content: center; align-items: center;">
-            
-            <div
-              class="search-bar-wrapper"
-              :class="{ closed: searchBoxClosed && !search }"
-            >
+            <div class="search-bar-wrapper" :class="{ closed: searchBoxClosed && !search }">
               <v-text-field v-model.trim="search"
                 dense 
                 rounded 
@@ -125,6 +121,14 @@
                 @focus="searchBoxClosed = false" @blur="searchBoxClosed = true"
               ></v-text-field>
             </div>
+            <v-tooltip location="bottom">
+                <template #activator="{ props }">
+                  <v-btn icon v-bind="props" @click="showSearchHelp = true" style="margin-left: 4px;" aria-label="Search Syntax Help">
+                    <v-icon>mdi-help-circle-outline</v-icon>
+                  </v-btn>
+                </template>
+                <span>Search Syntax Help</span>
+              </v-tooltip>
             <v-select
               v-model="sortBy"
               :items="sortOptions"
@@ -138,6 +142,40 @@
               <v-icon>{{ sortOrder === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down' }}</v-icon>
             </v-btn>
           </div>
+  <!-- Search Syntax Help Dialog -->
+  <v-dialog v-model="showSearchHelp" max-width="500">
+    <v-card>
+      <v-card-title class="headline">Search Syntax Help</v-card-title>
+      <v-card-text>
+        <div style="font-size: 1rem;">
+          <strong>Search Tags:</strong>
+          <ul>
+            <li><code>c:</code> <b>Color Identity</b> (e.g. <code>c:UW</code> for Blue AND White)</li>
+            <li><code>n:</code> <b>Name</b> (e.g. <code>n:dragon</code>)</li>
+            <li><code>o:</code> <b>Oracle Text</b> (e.g. <code>o:flying</code>)</li>
+            <li><code>t:</code> <b>Type</b> (e.g. <code>t:creature</code>)</li>
+          </ul>
+          <strong>Negation:</strong>
+          <ul>
+            <li>Prefix with <code>-</code> to exclude (e.g. <code>-c:R</code> excludes Red)</li>
+          </ul>
+          <strong>Multiple Tags:</strong>
+          <ul>
+            <li>Combine tags for advanced search (e.g. <code>c:UW n:angel -o:flying</code>)</li>
+          </ul>
+          <strong>Fallback:</strong>
+          <ul>
+            <li>Any text without a tag will search name, type, oracle text, and color identity</li>
+          </ul>
+        </div>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" @click="showSearchHelp = false">Close</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
         </v-app-bar>
         <v-row style="max-height: 80vh; overflow-y: auto;" @scroll.passive="onScroll" ref="scrollAreaRef">
           <CardItem
@@ -211,7 +249,8 @@ function getCookie(name: string): string | null {
   return match ? decodeURIComponent(match[2]) : null;
 }
 
-
+// Search Syntax Help Dialog State
+const showSearchHelp = ref(false);
 const cards = ref([]);
 const visibleCards = ref<any[]>([]);
 const selectedCard = ref(null);
