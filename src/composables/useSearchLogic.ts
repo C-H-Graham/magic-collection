@@ -1,16 +1,23 @@
 import { ref, watch } from 'vue';
 
-export function useSearchLogic(cards, selectedSets, selectedColors, sortBy, sortOrder, search) {
+export function useSearchLogic(
+  cards: { value: any[] },
+  selectedSets: { value: string[] },
+  selectedColors: { value: string[] },
+  sortBy: { value: string },
+  sortOrder: { value: string },
+  search: { value: string }
+) {
   function getFilteredCards() {
     const s = search.value.trim();
     let filtered = cards.value;
     if (selectedSets.value.length > 0) {
-      filtered = filtered.filter(card => selectedSets.value.includes(card.set_name));
+      filtered = filtered.filter((card: any) => selectedSets.value.includes(card.set_name));
     }
     if (selectedColors.value.length > 0) {
-      filtered = filtered.filter(card => {
+      filtered = filtered.filter((card: any) => {
         if (!Array.isArray(card.color_identity)) return false;
-        return selectedColors.value.every(sel => card.color_identity.includes(sel));
+        return selectedColors.value.every((sel: string) => card.color_identity.includes(sel));
       });
     }
     // Scryfall-like syntax parsing
@@ -26,24 +33,24 @@ export function useSearchLogic(cards, selectedSets, selectedColors, sortBy, sort
       matches.forEach(({ neg, tag, value }) => {
         if (tag === 'c') {
           const colors = value.split('');
-          filtered = filtered.filter(card => {
+          filtered = filtered.filter((card: any) => {
             if (!Array.isArray(card.color_identity)) return false;
-            const cardColors = card.color_identity.map((x) => x.toLowerCase());
-            const hasAll = colors.every(c => cardColors.includes(c));
+            const cardColors = card.color_identity.map((x: string) => x.toLowerCase());
+            const hasAll = colors.every((c: string) => cardColors.includes(c));
             return neg ? !hasAll : hasAll;
           });
         } else if (tag === 'n') {
-          filtered = filtered.filter(card => {
+          filtered = filtered.filter((card: any) => {
             const hasName = card.name?.toLowerCase().includes(value);
             return neg ? !hasName : hasName;
           });
         } else if (tag === 'o') {
-          filtered = filtered.filter(card => {
+          filtered = filtered.filter((card: any) => {
             const hasOracle = card.oracle_text?.toLowerCase().includes(value);
             return neg ? !hasOracle : hasOracle;
           });
         } else if (tag === 't') {
-          filtered = filtered.filter(card => {
+          filtered = filtered.filter((card: any) => {
             const hasType = card.type_line?.toLowerCase().includes(value);
             return neg ? !hasType : hasType;
           });
@@ -52,14 +59,14 @@ export function useSearchLogic(cards, selectedSets, selectedColors, sortBy, sort
     }
     if (rest) {
       const restLower = rest.toLowerCase();
-      filtered = filtered.filter(card =>
+      filtered = filtered.filter((card: any) =>
         card.name?.toLowerCase().includes(restLower) ||
         card.type_line?.toLowerCase().includes(restLower) ||
         card.oracle_text?.toLowerCase().includes(restLower) ||
         (Array.isArray(card.color_identity) && card.color_identity.join('').toLowerCase().includes(restLower))
       );
     }
-    filtered = [...filtered].sort((a, b) => {
+    filtered = [...filtered].sort((a: any, b: any) => {
       if (sortBy.value === 'name') {
         const nameA = a.name?.toLowerCase() || '';
         const nameB = b.name?.toLowerCase() || '';
