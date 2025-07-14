@@ -1,6 +1,6 @@
 <template>
   <v-col cols="12" sm="6" md="4" lg="4">
-    <v-card class="ma-2" outlined>
+    <v-card class="ma-2" outlined rounded="lg">
       <div class="card-img-hover-container">
         <v-img :src="card.image_uris?.normal || ''" height="260px" style="cursor:pointer; margin-top: 8px; border-radius: 12px;" @click="$emit('view-details', card)" />
         <div class="magnify-overlay">
