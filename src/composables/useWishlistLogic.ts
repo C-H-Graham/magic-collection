@@ -1,5 +1,6 @@
 import { ref, watch } from 'vue';
 import { useWishlistStore } from '../stores/wishlist';
+import { watch as vueWatch } from 'vue';
 
 export function useWishlistLogic(cards: any) {
   const wishlistStore = useWishlistStore();
@@ -7,9 +8,15 @@ export function useWishlistLogic(cards: any) {
   const snackbar = ref({ show: false, message: '' });
   const snackbarRemove = ref({ show: false, message: '' });
 
-  watch(() => wishlistStore.wishlist, (val: any[]) => {
+  vueWatch(() => wishlistStore.wishlist, (val: any[]) => {
     wishlist.value = val;
   }, { immediate: true });
+
+  watch(wishlist, (newVal) => {
+  // Only store id and name for simplicity
+  const minimal = newVal.map(card => ({ id: card.id, name: card.name }));
+  setWishlistCookie(encodeURIComponent(JSON.stringify(minimal)));
+}, { deep: true });
 
   function encodeCardName(name: string) {
     return encodeURIComponent(name)
@@ -50,6 +57,15 @@ export function useWishlistLogic(cards: any) {
       snackbarRemove.value.show = true;
     }
   }
+
+  // Simple cookie helpers
+function setWishlistCookie(value: string, days = 365) {
+  const d = new Date();
+  d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+  // Use Vite base path for cookie path
+  const base = import.meta.env.BASE_URL || '/';
+  document.cookie = `wishlist=${value};expires=${d.toUTCString()};path=${base}`;
+}
 
   return {
     wishlist,
